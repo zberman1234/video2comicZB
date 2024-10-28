@@ -43,4 +43,4 @@ RUN reflex export --frontend-only --no-zip
 EXPOSE 8000
 
 # Command to start Redis and run the app
-CMD ["bash", "-c", "redis-server --daemonize yes && reflex run --env prod --port ${PORT:-8000}"]
+CMD ["bash", "-c", "redis-server --daemonize yes && reflex run --env prod --backend-port ${PORT:-8000} --frontend-port ${PORT:-8000}"]
