@@ -1,9 +1,10 @@
 # Use the official Python image as the base image
-FROM python:3.11
+FROM python:3.11-slim
 
 # Install system dependencies
 RUN apt-get update && \
-    apt-get install -y curl redis-server libgl1-mesa-glx libglib2.0-0 util-linux && \
+    apt-get install -y --no-install-recommends \
+    curl redis-server libgl1-mesa-glx libglib2.0-0 util-linux && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Node.js
@@ -27,20 +28,18 @@ WORKDIR /app
 # Copy the current directory contents into the container at /app
 COPY . /app
 
-# Copy the Caddyfile (if you're using it)
-# COPY Caddyfile.txt /etc/Caddyfile
-
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install reflex-chakra
 
 # Initialize Reflex
 RUN reflex init
 
-# Build the frontend assets
-RUN reflex export --frontend-only --no-zip
+# Build the frontend assets without prerendering
+RUN reflex export --frontend-only --no-zip --no-prerender
 
 # Expose the port that the app runs on
 EXPOSE 8000
 
 # Command to start Redis and run the app
-CMD ["bash", "-c", "redis-server --daemonize yes && reflex run --env prod --backend-port ${PORT:-8000} --frontend-port ${PORT:-8000}"]
+CMD ["bash", "-c", "redis-server --daemonize yes && reflex run --env prod"]
